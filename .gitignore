@@ -1,2 +1,5 @@
 
 .zmk/
+*.zip
+firmware/
+.DS_Store
