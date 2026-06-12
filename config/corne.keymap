@@ -1,17 +1,19 @@
 /*
- * Starter keymap for Tom's wireless Corne v3 / 42-key layout.
+ * Corne v3 42-key starter keymap for Tom.
  *
- * Assumption:
- * - Host OS keyboard layout is German (QWERTZ).
- * - ZMK keycodes are HID/US-position keycodes, so some names look "wrong":
- *   &kp Y on the top row produces German "z"; &kp Z on the bottom row produces German "y".
+ * v3 changes:
+ * - Added Alt back: right outer thumb is now tap Backspace / hold Left Alt.
+ *   This makes Alt+Tab possible: hold right outer thumb, tap Tab.
+ * - Swapped left outer Ctrl/Shift to feel more like a normal keyboard:
+ *   Shift is above Ctrl.
  *
- * Layer overview:
- * BASE: German/QWERTZ typing
- * NAV : arrows, editing, modifiers
- * SYM : programming symbols for German OS layout
- * NUM : numbers and function keys
- * SYS : Bluetooth / USB / reset
+ * Geometry:
+ * - 3 rows x 12 keys + 6 thumb keys = 42 bindings per layer.
+ *
+ * Host OS layout assumption:
+ * - German / QWERTZ.
+ * - ZMK keycodes are HID/US-position keycodes:
+ *   &kp Y outputs German "Z"; &kp Z outputs German "Y".
  */
 
 #include <behaviors.dtsi>
@@ -19,86 +21,79 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
 
-#define BASE 0
-#define NAV  1
-#define SYM  2
-#define NUM  3
-#define SYS  4
+#define BASE  0
+#define LOWER 1
+#define RAISE 2
+#define SYS   3
+
+&led_strip {
+  chain-length = <27>;
+  // 21 backlight + 6 glowlight
+};
 
 / {
-    keymap {
-        compatible = "zmk,keymap";
+        keymap {
+                compatible = "zmk,keymap";
 
-        base_layer {
-            label = "BASE";
-            bindings = <
-/* German output:
- *  Q     W     E     R     T        Z     U     I     O     P     Ü
- *  A     S     D     F     G        H     J     K     L     Ö     Ä
- *  Y     X     C     V     B        N     M     ,     .     -     ß
- *              Esc/Ctrl Nav  Space  Enter/Num Sym  Bspc/Shift
- */
-                &kp Q       &kp W       &kp E       &kp R       &kp T           &kp Y       &kp U       &kp I       &kp O       &kp P       &kp LBKT
-                &kp A       &kp S       &kp D       &kp F       &kp G           &kp H       &kp J       &kp K       &kp L       &kp SEMI    &kp SQT
-                &kp Z       &kp X       &kp C       &kp V       &kp B           &kp N       &kp M       &kp COMMA   &kp DOT     &kp SLASH   &kp MINUS
-                                        &mt LEFT_CONTROL ESC     &mo NAV     &kp SPACE     &lt NUM ENTER     &mo SYM     &mt LEFT_SHIFT BSPC
-            >;
-        };
+                base_layer {
+// -----------------------------------------------------------------------------------------
+// German output with German OS layout:
+// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Z  |  U  |  I  |  O  |  P  |  Ü  |
+// | SHFT |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  Ö  |  Ä  |
+// | CTRL |  Y  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  -  |  ß  |
+//                    | GUI | LWR | SPC |   | ENT | RSE | BSPC/ALT |
+                        bindings = <
+   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp LBKT
+   &kp LSHFT &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
+   &kp LCTRL &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp MINUS
+                  &kp LGUI &mo LOWER &kp SPACE   &kp RET &mo RAISE &mt LALT BSPC
+                        >;
+                };
 
-        nav_layer {
-            label = "NAV";
-            bindings = <
-/* Hold left NAV thumb.
- * Right hand gives arrow/editing cluster.
- * Left hand gives modifiers and common editing keys.
- */
-                &kp TAB          &kp INSERT       &kp HOME         &kp UP          &kp END          &none        &kp HOME     &kp UP      &kp END      &kp PG_UP    &kp DEL
-                &kp LEFT_CONTROL &kp LEFT_ALT     &kp LEFT_GUI     &kp LEFT_SHIFT  &kp CAPS         &none        &kp LEFT     &kp DOWN    &kp RIGHT    &kp PG_DN    &kp BSPC
-                &kp ESC          &kp LC(Y)        &kp LC(Z)        &kp LC(C)       &kp LC(V)        &none        &kp LC(LEFT) &kp LA(LEFT)&kp LA(RIGHT)&kp LC(RIGHT)&none
-                                                   &trans           &trans          &trans           &trans       &mo SYS      &trans
-            >;
-        };
+                lower_layer {
+// -----------------------------------------------------------------------------------------
+// | ESC  |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | DEL  |
+// | SHFT | F1  | F2  | F3  | F4  | F5  |   | LFT | DWN | UP  | RGT | PGU | BSPC |
+// | CTRL | F6  | F7  | F8  | F9  | F10 |   | HOM | PGD | PGU | END | INS | ESC  |
+//                    | GUI |     | SPC |   | ENT | SYS | BSPC/ALT |
+                        bindings = <
+   &kp ESC   &kp N1  &kp N2  &kp N3  &kp N4  &kp N5     &kp N6   &kp N7   &kp N8    &kp N9    &kp N0    &kp DEL
+   &kp LSHFT &kp F1  &kp F2  &kp F3  &kp F4  &kp F5     &kp LEFT &kp DOWN &kp UP    &kp RIGHT &kp PG_UP &kp BSPC
+   &kp LCTRL &kp F6  &kp F7  &kp F8  &kp F9  &kp F10    &kp HOME &kp PG_DN &kp PG_UP &kp END   &kp INS   &kp ESC
+                  &kp LGUI &trans &kp SPACE   &kp RET &mo SYS &mt LALT BSPC
+                        >;
+                };
 
-        sym_layer {
-            label = "SYM";
-            bindings = <
-/* Programming symbols for German OS layout:
- *  !   @   #   $   %        &   *   (   )   ?
- *  <   >   =   +   -        /   \   |   ;   :
- *  [   ]   {   }   _        '   "   `   ,   .
- */
-                &kp LS(N1)   &kp RA(Q)    &kp NUHS     &kp LS(N4)   &kp LS(N5)      &kp LS(N6)   &kp LS(RBKT) &kp LS(N8)   &kp LS(N9)   &kp LS(MINUS) &none
-                &kp NUBS     &kp LS(NUBS) &kp LS(N0)   &kp RBKT     &kp SLASH       &kp LS(N7)   &kp RA(MINUS)&kp RA(NUBS) &kp LS(COMMA)&kp LS(DOT)   &none
-                &kp RA(N8)   &kp RA(N9)   &kp RA(N7)   &kp RA(N0)   &kp LS(SLASH)   &kp LS(NUHS) &kp LS(N2)   &kp LS(EQUAL)&kp COMMA    &kp DOT       &none
-                                          &trans        &mo SYS      &trans          &trans       &trans       &trans
-            >;
-        };
+                raise_layer {
+// -----------------------------------------------------------------------------------------
+// Programming symbols for German OS layout.
+// Some symbols are sent via German AltGr combinations using RALT, written as RA(...).
+//
+// Intended output:
+// | TAB |  !  |  @  |  #  |  $  |  %  |   |  &  |  *  |  (  |  )  |  ?  | BSPC |
+// | SHFT|  <  |  >  |  =  |  +  |  -  |   |  /  |  \  |  |  |  ;  |  :  |  `   |
+// | CTRL|  [  |  ]  |  {  |  }  |  _  |   |  '  |  "  |  `  |  ,  |  .  | ESC  |
+//                    | GUI | SYS | SPC |   | ENT |     | BSPC/ALT |
+                        bindings = <
+   &kp TAB   &kp LS(N1)   &kp RA(Q)    &kp NUHS     &kp LS(N4)   &kp LS(N5)     &kp LS(N6)   &kp LS(RBKT) &kp LS(N8)    &kp LS(N9)   &kp LS(MINUS) &kp BSPC
+   &kp LSHFT &kp NUBS     &kp LS(NUBS) &kp LS(N0)   &kp RBKT     &kp FSLH       &kp LS(N7)   &kp RA(MINUS)&kp RA(NUBS)  &kp LS(COMMA)&kp LS(DOT)   &kp LS(EQUAL)
+   &kp LCTRL &kp RA(N8)   &kp RA(N9)   &kp RA(N7)   &kp RA(N0)   &kp LS(FSLH)   &kp LS(NUHS) &kp LS(N2)   &kp LS(EQUAL) &kp COMMA    &kp DOT       &kp ESC
+                       &kp LGUI &mo SYS &kp SPACE   &kp RET &trans &mt LALT BSPC
+                        >;
+                };
 
-        num_layer {
-            label = "NUM";
-            bindings = <
-/* Hold Enter/NUM thumb.
- * Right hand is numpad-like.
- * Left hand has function keys.
- */
-                &kp F1      &kp F2      &kp F3      &kp F4      &kp F5           &none       &kp N7      &kp N8      &kp N9      &kp SLASH   &kp BSPC
-                &kp F6      &kp F7      &kp F8      &kp F9      &kp F10          &none       &kp N4      &kp N5      &kp N6      &kp RBKT    &kp LS(N0)
-                &kp F11     &kp F12     &none       &none       &none            &none       &kp N1      &kp N2      &kp N3      &kp N0      &kp DOT
-                                        &trans       &mo SYS     &kp N0           &trans      &trans      &trans
-            >;
+                sys_layer {
+// -----------------------------------------------------------------------------------------
+// | BT0  | BT1  | BT2  | BT3  | BT4  | BTCLR |   | USB | BLE | OUT |     |     |     |
+// |      |      |      |      |      |       |   |     |     |     |     |     |     |
+// |      |      |      | RST  | BOOT |       |   |     | BOOT| RST |     |     |     |
+//                    |     |     |     |   |     |     |     |
+                        bindings = <
+   &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &bt BT_CLR     &out OUT_USB &out OUT_BLE &out OUT_TOG &none       &none       &none
+   &none        &none        &none        &none        &none        &bt BT_CLR_ALL &none        &none        &none        &none       &none       &none
+   &none        &none        &none        &sys_reset   &bootloader  &none          &none        &bootloader  &sys_reset   &none       &none       &none
+                       &trans &trans &trans   &trans &trans &trans
+                        >;
+                };
         };
-
-        sys_layer {
-            label = "SYS";
-            bindings = <
-/* Bluetooth/output/admin layer.
- * Use carefully: reset/bootloader are intentionally not on the home row.
- */
-                &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4      &out OUT_USB  &out OUT_BLE  &out OUT_TOG  &none        &none        &none
-                &bt BT_CLR    &bt BT_CLR_ALL &none         &none         &none             &none         &none         &none         &none        &none        &none
-                &none         &none          &none         &sys_reset    &bootloader       &bootloader   &sys_reset    &none         &none        &none        &none
-                                                       &trans           &trans       &trans           &trans        &trans       &trans
-            >;
-        };
-    };
 };
